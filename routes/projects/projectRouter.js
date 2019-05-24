@@ -1,40 +1,30 @@
 const express = require("express");
-const db = require("../../data/helpers/actionModel");
-const dbProjects = require("../../data/helpers/projectModel");
+const db = require("../../data/helpers/projectModel");
 
 const router = express.Router();
 
-//get all actions
+//get all projects
 router.get("/", async (req, res) => {
   try {
-    const allActions = await db.get();
-    res.json({ message: allActions });
+    const allProjects = await db.get();
+    res.json({ message: allProjects });
   } catch (err) {
     res.status(500).json({ message: "internal server erros" });
   }
 });
 
-//get action by ID
+//get project by ID
 router.get("/:id", validateID, async (req, res) => {
-  try {
-    const singleAction = await db.get(req.params.id);
-    res.json({ message: singleAction });
-  } catch (err) {
-    res.status(500).json({ message: "internal server erros" });
-  }
+  const singleProject = await db.get(req.params.id);
+  res.json({ message: singleProject });
 });
 
-//add action
+//add project
 router.post("/", async (req, res) => {
+  console.log(req.body);
   try {
-    const validateProject = await dbProjects.get(req.body.project_id);
-
-    if (validateProject) {
-      const newAction = await db.insert(req.body);
-      res.json({ message: newAction });
-    } else {
-      res.status(404).json({ message: "not a valid project id" });
-    }
+    const newProject = await db.insert(req.body);
+    res.json({ message: newProject });
   } catch (err) {
     res.status(500).json({ message: "internal server error" });
   }
@@ -43,18 +33,30 @@ router.post("/", async (req, res) => {
 //update action
 router.put("/:id", validateID, async (req, res) => {
   try {
-    const updatedAction = await db.update(req.params.id, req.body);
-    res.json({ message: updatedAction });
+    const updatedProject = await db.update(req.params.id, req.body);
+    res.json({ message: updatedProject });
   } catch (err) {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
-//delete action
+//remove project
 router.delete("/:id", validateID, async (req, res) => {
   try {
-    const deletedAction = await db.remove(req.params.id);
-    res.json({ message: deletedAction });
+    const deletedProject = await db.remove(req.params.id);
+    res.json({ message: deletedProject });
+  } catch (err) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+//getProjectActions
+router.get("/:id/actions", validateID, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const projectActions = await db.getProjectActions(id);
+    res.json({ message: projectActions });
   } catch (err) {
     res.status(500).json({ message: "Internal Server Error" });
   }
